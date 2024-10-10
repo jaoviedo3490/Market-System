@@ -1,0 +1,28 @@
+.window-modal {
+  background-color: rgba(0, 0, 0, 0.8) !important;
+  position: fixed !important;
+  top: 0 !important; /* Cambiado para que cubra toda la ventana */
+  right: 0 !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  opacity: 0; /* Inicialmente oculto */
+  pointer-events: none; /* No puede interactuar al estar oculto */
+  transition: all 0.3s ease; /* Transición más rápida */
+  display: block; /* Mantener el modal en el flujo del documento */
+}
+
+#modal-window:target {
+  opacity: 1; /* Cuando se selecciona, completamente visible */
+  pointer-events: auto; /* Permitir interacciones */
+}
+
+.wnd-popup {
+  background-color: white !important;
+  width: 40% !important;
+  height: 60% !important;
+  padding: 2% !important;
+  margin: 10% auto !important;
+  position: relative !important;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Agregado para dar efecto de sombra */
+  border-radius: 8px; /* Bordes redondeados */
+}

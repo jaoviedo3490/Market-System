@@ -1,0 +1,24 @@
+.window-modal{
+    background-color: rgba(0,0,0,.8) !important;
+    position:fixed !important;
+    top:-3% !important;
+    right:0 !important;
+    bottom:0 !important;
+    left:0 !important;
+    opacity:2 !important;
+    pointer-events:visibleFill !important;
+    transition: all 3s !important;
+    display:block;
+  }
+  #modal-window:target{
+    opacity:1 !important;
+    pointer-events:auto !important;
+  }
+  .wnd-popup{
+    background-color:white !important;
+    width:40% !important;
+    height: 60% !important;
+    padding: 2% !important;
+    margin: 10% auto !important;
+    position: relative !important;
+  }  

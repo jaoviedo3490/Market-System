@@ -1,0 +1,7 @@
+{
+    "require": {
+        "firebase/php-jwt": "^6.10",
+        "predis/predis": "^2.2",
+        "doctrine/orm": "^2.19"
+    }
+}

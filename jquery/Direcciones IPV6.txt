@@ -1,0 +1,19 @@
+IPV6 validaciones
+
+- El prefijo de subred 48 debe estar en el campo DELEGATEDIPV6PREFIX : Se valida una vez el formato general se ha realizado.
+
+- El prefijo de subred 64 debe estar en el campo FRAMEDIPV6PREFIX : Se valida una vez el formato general se ha realizado.
+
+- Grupos de numeros hexadecimales de maximo 4 caracteres , separados por el caracter : se valida que contenga desde 1 hasta 4 caracteres , 
+  incluyendo el formato hexadecimal , letras sean mayusculas o minusculas desde la a hasta la F, con numeros entre el 0 y el 9.
+
+- La direccion IPV6 no puede permitir mas de dos puntos seguidos en la misma direccion. (:) : En proceso.
+
+Para la generacion de la Expresion regular para validar las direcciones IPV6 se utilizaron los campos del archivo de cargue , por lo que
+el formato de las direcciones ipv6 que no cumplan este formato puede verse afectada y validar correctamente.
+
+
+
+Maximo 4 caracteres entre separador (:) , minimo 1 caracter entre separador (:).
+
+ 
