@@ -1,0 +1,23 @@
+Para este proyecto se uso Redis como almacenamiento de tokens , para instalar redis es necesario tener instalado y/o activo WSL en nuestro computador:
+
+INSTALAR Y/O ACTIVAR WSL2.
+Aqui dejo el tutorial para activar o instalar WSL2: https://youtu.be/EIhzKQOR4vw?si=bA4W7kC392Eb-2vR
+
+
+INSTALAR UBUNTU.
+Una vez instalado WSL , procedemos a instalar ubuntu , con el siguiente comando: wsl --install -d Ubuntu , una vez instalado podemos iniciar el sistema instalado
+(si no se ha iniciado automaticamente) con el siguiente comando: wsl -d ubuntu , esto permitira iniciar wsl con ubuntu:
+Aqui dejo un tutorial para instalar ubuntu con wsl. https://youtu.be/L4f1XHrSJEg?si=tG5VxJE3Yc2SvDdl
+
+
+INSTALAR REDIS 
+Aqui dejo el tutorial para instalar Redis : https://youtu.be/eNNQ72Z3jZU?si=Oc7PgQquvv9rpuyw
+
+
+NOTA: Tambien se necesita la instalación de Xampp , para poder ejecutar los servicios de Apache y Mysql para poder ejecutar la aplicacion
+
+
+USUARIOS Y CONTRASEÑAS
+La aplicacion cuenta con 2 roles , administrador y empleado , Actualmente la aplicacion se encuentra en desarrollo por lo que estoy creando todas funciones del rol administrador.
+Usuario : Admin.
+Contraseña: Admin123.
