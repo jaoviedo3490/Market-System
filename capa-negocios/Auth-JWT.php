@@ -1,7 +1,7 @@
 
 <?php
 
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost");
 include_once('C:/xampp/htdocs/Market-System/capa-datos/ServiceError.php');
 require('C:/xampp/htdocs/Market-System/vendor/autoload.php');
 use \Firebase\JWT\JWT;
@@ -9,10 +9,12 @@ use \Firebase\JWT\JWT;
     class Auth_Token{
         private $SecretKey;
         private $Algorithm;
+     
 
         public function __construct($secretKey,$algorithm = 'HS256'){
             $this->SecretKey = $secretKey;
             $this->Algorithm = $algorithm;
+            
         }
 
 

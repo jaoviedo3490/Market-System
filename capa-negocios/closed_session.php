@@ -1,6 +1,6 @@
 <?php
 
-header('Access-Control-Allow-Origin: *'); // Permite solicitudes desde cualquier origen
+header('Access-Control-Allow-Origin: http//localhost'); // Permite solicitudes desde cualquier origen
 header('Access-Control-Allow-Methods: POST, GET, OPTIONS'); // Métodos permitidos
 header('Access-Control-Allow-Headers: Content-Type');
 header('Content-Type: application/json');

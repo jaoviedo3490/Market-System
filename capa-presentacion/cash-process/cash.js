@@ -114,22 +114,10 @@ $(document).ready(function () {
 
     // Evento keyup para detectar escritura en el input
     $("#product-name").keyup(function (event) {
-        let search = $("#product-name").val(); // Obtener el valor del input
-        console.log(search);  // O usa alert(search) para depurar
 
-        // Llamada AJAX
-        $.ajax({
-            url: '../../capa-negocios/Ajax-Products/Extract-Product-info.php',
-            method: 'POST',
-            data: {search},
-            success: function(response) {
-                alert(response);  // Mostrar respuesta para verificar
-                const json = JSON.parse(response);  // Parsear JSON
-                Object.values(json).forEach(element_ => {
-                    $("#product-name").val(element_.nombre);  // Asignar valor al input correctamente
-                });
-            }
-        });
+        let search = $("#product-name").val(); // Obtener el valor del input
+        //alert(search);   // O usa alert(search) para depurar
+        cashSearchProduct(search);
 
         // Si se presiona Enter (código 13), agregar el producto
         if (event.which == 13) {
@@ -214,20 +202,5 @@ $(document).ready(function () {
 
 // Función para eliminar un producto
 function delete_cashier() {
-    swal({
-        title: '¿Eliminar Producto?',
-        text: 'Ingrese el código del supervisor para eliminar el producto. ¡Atención! Todas las unidades serán eliminadas.',
-        icon: 'warning',
-        content: 'input',
-        button: { text: 'Validar Código' }
-    }).then((value) => {
-        if (value === 'admin') {
-            // Lógica para eliminar el producto
-        } else {
-            swal('El producto no pudo ser eliminado', {
-                title: '¡Código inválido!',
-                icon: 'error'
-            });
-        }
-    });
+   
 }

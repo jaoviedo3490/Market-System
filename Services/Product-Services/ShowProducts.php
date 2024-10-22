@@ -40,7 +40,7 @@ class showProducts{
                         case HttpStatusCode::OK:
                             $response['Message'] = HttpStatusCode::OK;
                             $response['Success'] = true;
-                            $response['Categorias'] = $category['Categorias'];
+                            $response['Categorias'] = $category['Categoria'];
                             //echo json_encode($response);
                     break;
                 default:

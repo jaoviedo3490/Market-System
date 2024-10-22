@@ -1,8 +1,4 @@
-<?php
 
-
-
-    ?>
 <!DOCTYPE html>
 <html>
     <head>
@@ -11,12 +7,23 @@
         <meta name="viewport">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <link href="../bootstrap.css" rel="stylesheet">
-        <script scr='/jquery/jquery.js'></script>
-        <script scr='/sweetalert/sweetalert.min.js'></script>
-        <script src="app.js"></script>
         <link rel="stylesheet" href="bootstrap.css">
+        <script src='jquery/jquery.js'></script>
+        <script src='sweetalert/sweetalert.min.js'></script>
+        <script type='module' src='capa-presentacion/Script/main.js'></script>
+        <script src="app.js"></script>
+       
     </head>
-    <body>
+    <body><?php
+        if (isset($_COOKIE['auth_token'])) {
+            // Ejecutar la función después de que el DOM esté cargado y main.js haya sido importado
+            echo "<script>
+                    window.addEventListener('DOMContentLoaded', (event) => {
+                        to_User_Route();
+                    });
+                  </script>";
+        }
+    ?>
         <header class="bg-white">
             <div class="container-fluid m-auto">
                 <nav class="nav">
@@ -30,7 +37,7 @@
                         <div class="col" >
                             
                                 <img src="resources/users.svg" alt="user-init" width="50" height="50" class="img-fluid"/>
-                                <a href="capa-presentacion/users/user-init.html" style="text-decoration:none;color:black;font-family: 
+                                <a href="capa-presentacion/users/user-init.php" style="text-decoration:none;color:black;font-family: 
                                     'Lucida Sans Regular', 'Lucida Grande', Geneva, Verdana, sans-serif; margin-top:10%;">Iniciar Sesion</a>
                         </div>
                     </div>

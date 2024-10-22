@@ -46,7 +46,7 @@
                 <nav class="navbar">
                     <div class="row">
                         <div class="col" style="margin-bottom:-6%;">
-                            <h4 class="display-6" style="font-family:sans-serif;text-decoration:none;color:white;"><a href="main.php" style="color:white;text-decoration:none;"><?=$Priv['user_info']['Privilegios']?></a></h4>
+                            <h4 class="display-6" style="font-family:sans-serif;text-decoration:none;color:white;"><a onClick="to_User_Route()" style="color:white;text-decoration:none;"><?=$Priv['user_info']['Privilegios']?></a></h4>
                         </div>
 
                     </div>           
@@ -64,7 +64,7 @@
                             
                         </div>
                         <div class="col">
-                            <a href="Management_Accounts/main_accounts.php" style="color:white;text-decoration:none;">Administrar Cuentas</a>
+                            <a href="../Management_Accounts/main_accounts.php" style="color:white;text-decoration:none;">Administrar Cuentas</a>
                         </div>
                         <div  class="col">
                             <a href="#"  id='caja' style="color:white;text-decoration:none;">Caja</a>
@@ -89,9 +89,11 @@
                 //print_r($Categorias);
             
                 switch($Categorias['StatusCode']){
-                    case 400: echo GenericAlert("Error","No llegaron los datos mi papacho","warning","Importante");break;
+                    case 200: break;
+                    case 404: console.log(response); break;
+                    case 400: echo GenericAlert("Error","Respuesta no valida del servidor","warning","Importante");break;
                     case 500: echo GenericAlert("Error","Error interno del servidor","warning","Importante");break;
-                    default: echo GenericAlert("Error","No se espero haberte ayudado","warning","Importante");break;
+                    default: echo GenericAlert("Error al clasificar el error , codigo de estado:  ".$Categorias['StatusCode'],"warning","Importante");break;
                     
                 }
             

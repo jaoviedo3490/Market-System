@@ -22,5 +22,5 @@
         $response["StatusCode"] = HttpStatusCode::INTERNAL_SERVER_ERROR;
         $response['Message'] = "Error interno del servidor - Error : ".$e->getMessage();
     }
-echo json_encode($response);
-    ?>
+        echo json_encode($response);
+?>

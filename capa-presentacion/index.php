@@ -1,9 +1,6 @@
 <?php
-session_start();
+
 include('../capa-datos/conexion.php');
-if(isset($_SESSION['session'])){
-    header("Location: ../capa-presentacion/Index/User-Route.php");
-}
     ?>
 <!DOCTYPE html>
 <html>
@@ -16,10 +13,19 @@ if(isset($_SESSION['session'])){
         <script src='../jquery/jquery.js'></script>
         <script src='../sweetalert/sweetalert.min.js'></script>
         <script src="app.js"></script>
+        <script type='module' src='Script/main.js'></script>
         <link rel="stylesheet" href="bootstrap.css">
     </head>
-    <body>
-        <header class="bg-white">
+    <body><?php
+        if (isset($_COOKIE['auth_token'])) {
+            // Ejecutar la función después de que el DOM esté cargado y main.js haya sido importado
+            echo "<script>
+                    window.addEventListener('DOMContentLoaded', (event) => {
+                        to_User_Route();
+                    });
+                  </script>";
+        }
+    ?><header class="bg-white">
             <div class="container-fluid m-auto">
                 <nav class="nav">
                     <div class="row justify-content-end"  style="margin-left:5%;">
@@ -32,7 +38,7 @@ if(isset($_SESSION['session'])){
                         <div class="col" >
                             
                                 <img src="../resources/users.svg" alt="user-init" width="50" height="50" class="img-fluid"/>
-                                <a href="../capa-presentacion/users/user-init.html" style="text-decoration:none;color:black;font-family: 
+                                <a href="../capa-presentacion/users/user-init.php" style="text-decoration:none;color:black;font-family: 
                                     'Lucida Sans Regular', 'Lucida Grande', Geneva, Verdana, sans-serif; margin-top:10%;">Iniciar Sesion</a>
                         </div>
                     </div>

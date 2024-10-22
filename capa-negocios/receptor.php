@@ -1,6 +1,16 @@
 <?php
-include_once('C:/xampp/htdocs/Market-System/capa-datos/ServiceError.php');
-include_once('C:/xampp/htdocs/Market-System/capa-datos/conexion.php');
+use RedBeanPHP\R;
+$autoloadPath = realpath(__DIR__ . '/../vendor/autoload.php');
+$ormConn = realpath(__DIR__.'/../helpers/ORM/ORMConnection.php');
+$conexion = realpath(__DIR__.'/../capa-datos/conexion.php');
+$Service = realpath(__DIR__.'/../capa-datos/ServiceError.php');
+
+
+include_once($Service);
+include_once($conexion);
+require_once($ormConn);
+require_once(realpath(__DIR__ . '/../vendor/autoload.php'));
+
 
 
     class Usuarios{
@@ -133,11 +143,11 @@ include_once('C:/xampp/htdocs/Market-System/capa-datos/conexion.php');
                         if (count($result) > 0) {
                             $response['Message'] = HttpStatusCode::OK;
                             foreach ($result as $data) {
-                                $user['ID'] = $data['ID'];
+                                $user['ID'] = $data['id'];
                                 $user['Nombre'] = $data['Nombre'];
-                                $user['Contraseña'] = $data['Contraseña']; 
+                                $user['Contraseña'] = $data['contrasena']; 
                                 $user['Privilegios'] = $data['Privilegios'];
-                                $user['Estado'] = $data['Estado'];
+                                $user['Estado'] = $data['estado'];
 
                                
                             }
@@ -259,36 +269,38 @@ include_once('C:/xampp/htdocs/Market-System/capa-datos/conexion.php');
 
 
 
+//------------------------------------------------------------------------
 
-        public function extract_all_users($Estado){
+        public function extract_all_users(){
             
             $con = new Conexion();
            
             $users = array();
-            $response = array("Success"=>false,"Message"=>"","Usuario"=>array());
+            $response = array("Success"=>false,"Message"=>"","Usuarios"=>array());
 
             try{
 
-                $cadena = "SELECT * FROM usuarios WHERE Privilegios LIKE 'Empleado' AND Estado LIKE ?";
+                $cadena = "SELECT * FROM usuarios WHERE Privilegios = 'Empleado'";
                 $datos = ($con->getBD())->prepare($cadena);
-
+                //$response['Message'] = $cadena;
                 if($datos){
-
-                    $searchTherm = "%".$Estado."%";
-                    $datos->bind_param("s",$searchTherm);
-
                     if($datos->execute()){
                         $response['Success'] = true;
-                        $result = $datos->get_result();
-
-                        while($data = $result->fetch_assoc()){
-                            $users[] = array(
-                                "ID" => $data['ID'],
-                                "Nombre"=>$data['Nombre'],
-                                "Privilegios"=>$data['Privilegios'],
-                                "Estado"=>$data['Estado']
-                            );
+                        $response['Message'] = HttpStatusCode::OK;
+                        $result = $datos->fetchAll(PDO::FETCH_ASSOC);
+                        if(count($result)>0){
+                            foreach($result as $data){
+                                $users[] = array(
+                                    "ID" => $data['ID'],
+                                    "Nombre"=>$data['Nombre'],
+                                    "Privilegios"=>$data['Privilegios'],
+                                    "Estado"=>$data['Estado']
+                                );
+                            }
+                        }else{
+                            $response['Message'] = HttpStatusCode::NOT_FOUND;
                         }
+                        
                         $response['Usuarios'] = $users;
                     }else{
                         $response['Message'] = "Ocurrio un error en la Ejecucion de la consulta: ".$datos->error;
@@ -296,24 +308,94 @@ include_once('C:/xampp/htdocs/Market-System/capa-datos/conexion.php');
                         throw new Exception($response['Message']);
                     }
 
-                    $datos->close();
+                    $datos=null;
                 }else{
                     $response['Message'] = "Ocurrio un error en la Preparacion de la consulta: ".$datos->error;
                     error_log($response);
                     throw new Exception($response);
                 }
-                $con->getDB()->close();
+                $con=null;
             }catch(Exception $e){
                 $response['Message'] = 'Excepcion encontrada en el metodo extract_all_users: '.$e->getMessage();
                 error_log($response['Message']);
             }finally{
-                $con->getBD()->close();
+                $con=null;
             }
             return $response;
             
         }
 
+//---------------------------------------------------------------------------------------------------
 
+public function extract_all_users_by_status($Estado){
+
+    $response = array("Success"=>false , "Message"=>"" , "Usuarios"=>array());
+    $Productos = array();
+    try{
+        @$cadena = "SELECT ID , Nombre , Privilegios , Estado FROM usuarios WHERE Privilegios = 'Empleado' AND Estado = ?";
+
+        $Productos = R::getAll($cadena,[$Estado]);
+        if(!empty($Productos)){
+            $response['Success']=true;
+            $response['Message']=HttpStatusCode::OK;
+            $response['Usuarios'] = $Productos;
+        }else{
+            $response['Success']=true;
+            $response['Message']=HttpStatusCode::NOT_FOUND;
+        }
+    }catch(Exception $e){
+        $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+        $response['StatusCode'] = HttpStatusCode::INTERNAL_SERVER_ERROR;
+        error_log("Excepcion encontrada en el metodo extract_all_users_by_status(): ".$e);
+    }
+    return $response;
+}
+ //------------------------------------------------------------------------------------------------------------    
+
+ public function Suspend_User($id){
+    $response = array("Success"=>false,"Message"=>"");
+    try{
+        $user_suspend = R::load('usuarios',$id);
+        //print_r($user_suspend);
+        if($user_suspend->id>0){
+            $user_suspend->estado = 'Suspendida';
+            R::store($user_suspend);
+            $response['Success'] = true;
+            $response['Message'] = HttpStatusCode::OK;
+        }else{
+            $response['Success'] = true;
+            $response['Message'] = HttpStatusCode::NOT_FOUND;
+        }
+    }catch(Exception $e){
+        $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+        error_log("Excepcion encontrada en el metodo Suspend_User(): ".$e);
+    }
+    return $response;
+}
+//------------------------------------------------------------------------------------------------------------    
+
+public function Active_User($id){
+    $response = array("Success"=>false,"Message"=>"");
+    try{
+        $user_suspend = R::load('usuarios',$id);
+        //print_r($user_suspend);
+        if($user_suspend->id>0){
+            $user_suspend->estado = 'Activa';
+            R::store($user_suspend);
+            $response['Success'] = true;
+            $response['Message'] = HttpStatusCode::OK;
+        }else{
+            $response['Success'] = true;
+            $response['Message'] = HttpStatusCode::NOT_FOUND;
+        }
+    }catch(Exception $e){
+        $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+        error_log("Excepcion encontrada en el metodo Suspend_User(): ".$e);
+    }
+    return $response;
+}
+
+//-----------------------------------------------------------------------------------------------------------------
         public function getID(){ return $this->_ID; }
         public function getNombre() { return $this->_Nombre; }
         public function getContraseña() { return $this->_Contraseña; }
@@ -333,6 +415,10 @@ include_once('C:/xampp/htdocs/Market-System/capa-datos/conexion.php');
         private $_Categoria;
         private $_Imagen;
 
+        public function __contruct(){
+            $ORMObject = new ORMRedBean();
+            $ORMObject->ORMInit();
+        }
         public function Create_Product_SQL($Nombre,$Precio,$Referencia,$Stock,$Ruta,$Vendidos,$Categoria){
             $con = new Conexion();
             $response = array("Success"=>false,"Message"=>"");
@@ -414,318 +500,263 @@ include_once('C:/xampp/htdocs/Market-System/capa-datos/conexion.php');
 
 
 
-
-
-        public function Update_Product_SQL($ID,$NOMBRE,$PRECIO,$REFERENCIA,$STOCK,$VENDIDOS){
-           
-            $con = new Conexion();
-            $response = array("Success"=>false , "Message"=>"");
-            try{
-
-                $cadena = "UPDATE Productos SET Nombre = ? , Precio = ? , Referencia = ? , Stock = ? , Vendidos = ? WHERE ID = ?";
-                $datos = ($con->getBD())->prepare($cadena);
-            
-                if ($datos) {
-                 
-                    $datos->bind_param("sisii",$NOMBRE,$PRECIO,$REFERENCIA,$STOCK,$VENDIDOS);
-               
-                    if ($datos->execute()) {
-                        $response['Success'] = true;
-                    } else {
-                        $response['Message'] = "Error en la ejecución de la consulta: " . $datos->error;
-                        error_log($response['Message']);
-                        throw new Exception($response['Message']);
-                    }
-            
-                
-                    $datos->close();
+        /*public function Update_Product($id, array $Producto) {
+            $response = array("Success" => false, "Message" => "","Producto_Repetido" => array());
+        
+            try {
+                $product = R::load('productos', $id);
+                if (!$product) {
+                    $response['Message'] = HttpStatusCode::NOT_FOUND;
+                    return $response;
+                }
+        
+                // Combinar las condiciones de búsqueda en una sola consulta
+                $duplicate = R::findOne('productos', '(nombre = :nombre OR referencia = :referencia OR codigo_de_barras = :codigo_de_barras)
+                    AND id <> :id', [':nombre' => $Producto['Nombre'],
+                        ':referencia' => $Producto['Referencia'],
+                            ':codigo_de_barras' => $Producto['Codigo_de_Barras'],':id' => $id]);
+                            //print_r($duplicate);
+        
+                if (!$duplicate) {
+                    $product->nombre = $Producto['Nombre'];
+                    $product->referencia = $Producto['Referencia'];
+                    $product->codigo_de_barras = $Producto['Codigo_de_Barras'];
+                    R::store($product);
+                    $response['Message'] = HttpStatusCode::OK;
+                    $response['Success'] = true;
                 } else {
-                    $response['Message'] = "Error en la preparación de la consulta: " . $con->getBD()->error;
-                    error_log($response['Message']);
-                    throw new Exception($response['Message']);
+                    $response["Success"] = false;
+                    $response['Message'] = HttpStatusCode::FORBBIDEN;
+                    $response['Producto_Repetido'][] = $duplicate;
                 }
-            
-             
-                $con->getBD()->close();
-               
-            }catch(Exception $e){
-                $response['Message'] = "Ha ocurrido un error en el método Update_Users_SQL: " . $e->getMessage();
-                error_log($response['Message']);
-            }finally{
-                $con->getDB()->close();
+            } catch (Exception $e) {
+                $response['Success'] = false;
+                $response['Message'] = "Error al actualizar producto: " . $e->getMessage();
+                // Loggear la excepción con más detalle, incluyendo la consulta SQL y los parámetros
+                error_log("UpdateProduct: " . $e->getMessage() . " - SQL: " . $e->getTraceAsString());
             }
-         return $response;
-            
-        }
-
-
-
-
         
+            return $response;
+        }*/
 
-
-     public function Extract_AllCategory(){
-        $con = new Conexion();
-        $categorias = array();
-        $response = array("Success"=>false , "Message"=>"" , "Categorias"=>array());
-        try{
-            $consulta = "SELECT * FROM CATEGORIA";
-            $datos = ($con->getBD()->prepare($consulta));
-
-            if($datos){
-                if($datos->execute()){
-                    $response['Success'] = true;
-                    $result = $datos->fetchAll(PDO::FETCH_ASSOC);
-                    if(count($result)>0){
-                        $response['Message'] = HttpStatusCode::OK;
-                        for($i=0;$i<count($result);$i++){
-                            $categorias[$i] = $result[$i];
-                        }
-                    }else{
-                        $response['Message'] = HttpStatusCode::NOT_FOUND;
-                        $response['Success'] = true;
-                    }
-                    $response['Categorias'] = $categorias;
-                }else{
-                    $datos = null;
-                    $response['Message'] = "Ocurrio un error en la Ejecucion de la consulta";
-                    error_log($response['Message']);
-                    throw new Exception($response['Message']);
-                }
-            }else{
-                $datos = null;
-                $response['Message'] = "Ocurrio un error en la Preparacion de la consulta";
-                error_log($response['Message']);
-                throw new Exception($response['Message']);
-            }
-
-        }catch(PDOException $pdo){
-            $response['Message'] = HttpStatusCode::INTERNAL_SERVER_ERROR." : ".$pdo->getMessage();
-            error_log($response['Message']);
-        }catch(Exception $e){
-            $response['Message'] = HttpStatusCode::INTERNAL_SERVER_ERROR." : ".$pdo->getMessage();
-            error_log($response['Message']);
-        }finally{
-            $con = null;
-        }
-        return $response;
-     }
-
-     public function Extract_All_Data_Object_by_Category($dato){
-            
-        $con = new Conexion();
-        $productos = array();
-        $response = array("Success"=>false,"Message"=>"","Productos"=>array());
-        try{
-            @$cadena = "SELECT p.ID as 'ID', p.Nombre as 'Nombre', c.Nombre as 'Categoria' FROM Productos p inner join Categoria c on p.CategoriaID = c.ID WHERE c.Nombre = ?";
-            $datos = ($con->getBD())->prepare($cadena);
-
-            if($datos){
-
-                //@$searchTherm = "%".$dato."%";
-                if($datos->execute([$dato])){
-
-                    $response['Success'] = true;
-                    $result = $datos->fetchAll(PDO::FETCH_ASSOC);
-                    if(count($result)>0){
-                        $response['Message'] = HttpStatusCode::OK;
-
-                        foreach($result as $data){
-                            $productos[] = array(
-                                "ID"=>$data['ID'],
-                                "Nombre"=>$data['Nombre'],
-                                "Categoria"=>$data['Categoria'],
-                            );
-                        }
-                        
-                    }
-                    $response["Productos"]=$productos;
-                }else{
-                    $response['Message']="Ocurrio un error en la Ejecucion de la consulta: ".$datos->error;
-                    error_log($response['Message']);
-                    throw new Exception($response['Message']);
-                }
-               $datos = null;
-            }else{
-                $response['Message']="Ocurrio un error en la Preparacion de la consulta: ".$datos->error;
-                error_log($response['Message']);
-                throw new Exception($response['Message']);
-            }
-            $con = null;
-        }catch(Exception $e){
-                $response['Message']="Excepcion encontrada en el metodo Extract_num_products: ".$e->getMessage();
-                error_log($response['Message']);
-        }finally{
-           $con = null;
-        }
-        return $response;
-    }
-
-
-
-      public function Extract_All_Data_Object($dato){
-            
-        $con = new Conexion();
-        $productos = array();
-        $response = array("Success"=>false,"Message"=>"","Productos"=>array());
-        try{
-            @$cadena = "SELECT p.ID as 'ID', p.Nombre as 'Nombre', c.Nombre as 'Categoria' FROM Productos p inner join Categoria c on p.CategoriaID = c.ID WHERE p.Nombre LIKE ?";
-            $datos = ($con->getBD())->prepare($cadena);
-
-            if($datos){
-
-                @$searchTherm = "%".$dato."%";
-                if($datos->execute([$searchTherm])){
-
-                    $response['Success'] = true;
-                    $result = $datos->fetchAll(PDO::FETCH_ASSOC);
-                    if(count($result)>0){
-                        $response['Message'] = HttpStatusCode::OK;
-
-                        foreach($result as $data){
-                            $productos[] = array(
-                                "ID"=>$data['ID'],
-                                "Nombre"=>$data['Nombre'],
-                                "Categoria"=>$data['Categoria'],
-                            );
-                        }
-                        
-                    }
-                    $response["Productos"]=$productos;
-                }else{
-                    $response['Message']="Ocurrio un error en la Ejecucion de la consulta: ".$datos->error;
-                    error_log($response['Message']);
-                    throw new Exception($response['Message']);
-                }
-               $datos = null;
-            }else{
-                $response['Message']="Ocurrio un error en la Preparacion de la consulta: ".$datos->error;
-                error_log($response['Message']);
-                throw new Exception($response['Message']);
-            }
-            $con = null;
-        }catch(Exception $e){
-                $response['Message']="Excepcion encontrada en el metodo Extract_num_products: ".$e->getMessage();
-                error_log($response['Message']);
-        }finally{
-           $con = null;
-        }
-        return $response;
-    }
-
-
-    
-    public function Extract_All_Data_Object_Unit($dato){
-            
-        $con = new Conexion();
-        $productos = array();
-        $response = array("Success"=>false,"Message"=>"","Productos"=>array());
-        try{
-            @$cadena = "SELECT p.ID as 'ID', p.Nombre as 'Nombre', c.Nombre as 'Categoria' FROM Productos p inner join Categoria c on p.CategoriaID = c.ID WHERE p.Nombre = ?";
-            $datos = ($con->getBD())->prepare($cadena);
-
-            if($datos){
-
-                @$searchTherm = "%".$dato."%";
-                if($datos->execute([$searchTherm])){
-
-                    $response['Success'] = true;
-                    $result = $datos->fetchAll(PDO::FETCH_ASSOC);
-                    if(count($result)>0){
-                        $response['Message'] = HttpStatusCode::OK;
-
-                        foreach($result as $data){
-                            $productos[] = array(
-                                "ID"=>$data['ID'],
-                                "Nombre"=>$data['Nombre'],
-                                "Categoria"=>$data['Categoria'],
-                            );
-                        }
-                        
-                    }
-                    $response["Productos"]=$productos;
-                }else{
-                    $response['Message']="Ocurrio un error en la Ejecucion de la consulta: ".$datos->error;
-                    error_log($response['Message']);
-                    throw new Exception($response['Message']);
-                }
-               $datos = null;
-            }else{
-                $response['Message']="Ocurrio un error en la Preparacion de la consulta: ".$datos->error;
-                error_log($response['Message']);
-                throw new Exception($response['Message']);
-            }
-            $con = null;
-        }catch(Exception $e){
-                $response['Message']="Excepcion encontrada en el metodo Extract_num_products: ".$e->getMessage();
-                error_log($response['Message']);
-        }finally{
-           $con = null;
-        }
-        return $response;
-    }
-
-
-
-
-
-
-
-
-
-
-
-        public function Extract_All_Data_Object_(){
-            $con = new Conexion();
-            $productos = array();
-            $response = array("Success"=>false,"Message"=>"","Productos"=>array());
+        public function Update_Product($id , array $Producto){
+            $response = array("Success"=>false , "Message"=>"" , "Producto_Repetido"=>array());
             try{
-                @$cadena = "SELECT p.ID as 'ID', p.Nombre as 'Nombre', c.Nombre as 'Categoria' FROM Productos p inner join Categoria c on p.CategoriaID = c.ID ORDER BY p.ID";
-                $datos = ($con->getBD())->prepare($cadena);
-    
-                if($datos){
+                $Productos = R::load('productos',$id);
+                //print_r($Productos);
+                //print_r($Producto);
+                //print_r($id);
+                if(!empty($Productos)){
+                    //$params = [$Producto['Nombre'], $id, $Producto['Referencia'], $id, $Productos['Codigo_de_Barras'], $id];
+                    $Repeat_Product['Nombre'] = R::findOne('productos', "nombre = :nombre AND id <> :id", [":nombre"=>$Producto['Nombre'],":id"=>$id]);
+                    $Repeat_Product['Referencia'] = R::findOne('productos', "referencia = :referencia AND id <> :id", [":referencia"=>$Producto['Referencia'],":id"=>$id]);
+                    $Repeat_Product['Codigo_de_Barras'] = R::findOne('productos', "codigo_de_barras = :codigo_de_barras AND id <> :id", [":codigo_de_barras"=>$Productos['Codigo_de_barras'],":id"=>$id]);
 
-                    if($datos->execute()){
-    
-                        $response['Success'] = true;
-                        $result = $datos->fetchAll(PDO::FETCH_ASSOC);
+                   if(is_null($Repeat_Product['Nombre']) 
+                        && is_null($Repeat_Product['Referencia'])
+                            && is_null($Repeat_Product['Codigo_de_Barras'])){
+
+                                $Productos->nombre = $Producto['Nombre'];
+                                $Productos->referencia = $Producto['Referencia'];
+                                $Productos->codigo_de_barras = $Producto['Codigo_de_barras'];
+
+                                R::store($Productos);
+                                $response['Message'] = HttpStatusCode::OK;
+                                $response['Success'] = true;
                         
-                        if(count($result)>0){
-                            $response['Message'] = HttpStatusCode::OK;
-                            foreach($result as $data){
-                                $productos[] = array(
-                                    "ID"=>$data['ID'],
-                                    "Nombre"=>$data['Nombre'],
-                                    "Categoria"=>$data['Categoria']
-                                );
-                            }
-                            $response['Productos'] = $productos;
-                        }else{
-                            $response['Message'] = HttpStatusCode::NOT_FOUND;
+                   }else{
+                        $response["Success"] = false;
+                        $response['Message'] = HttpStatusCode::FORBBIDEN;
+                        $i = 0;
+                        foreach($Repeat_Product as $Clave => $valor){
+                        
+                            if(!is_null($valor)) $response['Producto_Repetido'][$i] = $Clave;
+                            $i++;
+                            
                         }
-                    }else{
-                        $response['Message']="Ocurrio un error en la Ejecucion de la consulta: ".$datos->error;
-                        error_log($response['Message']);
-                        throw new Exception($response['Message']);
-                    }
+                   }
                 }else{
-                    $response['Message']="Ocurrio un error en la Preparacion de la consulta: ".$datos->error;
-                    error_log($response['Message']);
-                    throw new Exception($response['Message']);
+                    $response['Success'] = false;
+                    $response['Message'] = HttpStatusCode::NOT_FOUND;
                 }
-                $con = null;
             }catch(Exception $e){
-                    $response['Message']="Excepcion encontrada en el metodo Extract_All_Data_Object_: ".$e->getMessage();
-                    error_log($response['Message']);
-            }finally{
-                $con = null;
+                $response['Success'] = false;
+                $response['Message'] = "Excepcion encontrada: ".$e;
+                //$response['StatusCode'] = HttpStatusCode::INTERNAL_SERVER_ERROR;
+                error_log("Excepcion encontrada en el metodo allCategory(): ".$e);
             }
-            return $response;           
+            return $response;
+            
         }
-        
-        
-       
 
+
+        public function Extract_AllCategory(){
+            $response = array("Success"=>false , "Message"=>"" , "Categoria"=>array());
+            $Categorias = array();
+            try{
+                $Categorias = R::findAll('Categoria');
+                if(count($Categorias)>0){
+                    $response['Success']=true;
+                    $response['Message']=HttpStatusCode::OK;
+                    $response['Categoria'] = $Categorias;
+                }else{
+                    $response['Message']=HttpStatusCode::NOT_FOUND;
+                }
+            }catch(Exception $e){
+                $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+                $response['StatusCode'] = HttpStatusCode::INTERNAL_SERVER_ERROR;
+                error_log("Excepcion encontrada en el metodo allCategory(): ".$e);
+            }
+            return $response;
+        }
+
+        
+
+        public function Extract_All_Data_Object_by_Category($dato){
+
+            $response = array("Success"=>false , "Message"=>"" , "Productos"=>array());
+            $Productos = array();
+            try{
+                @$cadena = "SELECT p.Nombre as 'Nombre', p.ID as 'ID' , c.Nombre as 'Categoria' , p.Precio as 'Precio' , p.Stock as 'Stock', p.Referencia as 'Referencia' , p.Vendidos as 'Vendidos' ".
+                    "FROM Productos p inner join Categoria c on p.CategoriaID = c.id WHERE c.Nombre = ?";
+
+                $Productos = R::getAll($cadena,[$dato]);
+                if(!empty($Productos)){
+                    $response['Success']=true;
+                    $response['Message']=HttpStatusCode::OK;
+                    $response['Productos'] = $Productos;
+                }else{
+                    $response['Success']=true;
+                    $response['Message']=HttpStatusCode::NOT_FOUND;
+                }
+            }catch(Exception $e){
+                $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+                $response['StatusCode'] = HttpStatusCode::INTERNAL_SERVER_ERROR;
+                error_log("Excepcion encontrada en el metodo Extract_All_Data_Object_by_Category(): ".$e);
+            }
+            return $response;
+        }
+
+
+
+
+
+
+        public function Extract_All_Data_Object($dato){
+
+            $response = array("Success"=>false , "Message"=>"" , "Productos"=>array());
+            $Productos = array();
+            try{
+                @$cadena = "SELECT p.Stock as 'Stock' , p.Vendidos as 'Vendidos' , p.Referencia as 'Referencia' , p.Precio as 'Precio' ".
+                                ", p.ID as 'ID', p.Nombre as 'Nombre', c.Nombre as 'Categoria' FROM Productos p inner join Categoria c on p.CategoriaID = c.ID WHERE p.ID = ?";
+        
+                $Productos = R::getAll($cadena,[$dato]);
+                if(!empty($Productos)){
+                    $response['Success']=true;
+                    $response['Message']=HttpStatusCode::OK;
+                    $response['Productos'] = $Productos;
+                }else{
+                    $response['Success']=true;
+                    $response['Message']=HttpStatusCode::NOT_FOUND;
+                }
+            }catch(Exception $e){
+                $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+                $response['StatusCode'] = HttpStatusCode::INTERNAL_SERVER_ERROR;
+                error_log("Excepcion encontrada en el metodo Extract_All_Data_Object(): ".$e);
+            }
+            return $response;
+        }
+
+      
+
+//-----------------------------------------------------------------------
+//Modelo que realiza la busqueda de los productos en la barra de busqueda
+//$dato = producto a buscar
+public function Extract_All_Data_Object_Unit($dato){
+
+    $response = array("Success"=>false , "Message"=>"" , "Productos"=>array());
+    $Productos = array();
+    try{
+        @$cadena = "SELECT p.Stock as 'Stock' , p.Vendidos as 'Vendidos' , p.Referencia as 'Referencia' , p.Precio as 'Precio' ".
+                ", p.ID as 'ID', p.Nombre as 'Nombre', c.Nombre as 'Categoria' FROM Productos p inner join Categoria c on p.CategoriaID = c.ID WHERE p.ID = ?";
+
+        $Productos = R::getAll($cadena,[$dato]);
+        if(!empty($Productos)){
+            $response['Success']=true;
+            $response['Message']=HttpStatusCode::OK;
+            $response['Productos'] = $Productos;
+        }else{
+            $response['Success']=true;
+            $response['Message']=HttpStatusCode::NOT_FOUND;
+        }
+    }catch(Exception $e){
+        $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+        $response['StatusCode'] = HttpStatusCode::INTERNAL_SERVER_ERROR;
+        error_log("Excepcion encontrada en el metodo Extract_All_Data_Object_Unit(): ".$e);
+    }
+    return $response;
+}
+    
+//-----------------------------------------------------------------------------------------------------------
+
+
+public function Extract_All_Data_Object_Search($dato){
+
+    $response = array("Success"=>false , "Message"=>"" , "Productos"=>array());
+    $Productos = array();
+    try{
+        @$cadena = "SELECT p.Stock as 'Stock' , p.Vendidos as 'Vendidos' , p.Referencia as 'Referencia' , p.Precio as 'Precio' ".
+                ", p.ID as 'ID', p.Nombre as 'Nombre', c.Nombre as 'Categoria' FROM Productos p inner join Categoria c on p.CategoriaID = c.ID WHERE p.Nombre LIKE ?";
+
+        $Productos = R::getAll($cadena,['%'.$dato.'%']);
+        if(!empty($Productos)){
+            $response['Success']=true;
+            $response['Message']=HttpStatusCode::OK;
+            $response['Productos'] = $Productos;
+        }else{
+            $response['Success']=true;
+            $response['Message']=HttpStatusCode::NOT_FOUND;
+        }
+    }catch(Exception $e){
+        $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+        $response['StatusCode'] = HttpStatusCode::INTERNAL_SERVER_ERROR;
+        error_log("Excepcion encontrada en el metodo Extract_All_Data_Object_Unit(): ".$e);
+    }
+    return $response;
+}
+
+//-------------------------------------------------------------------------------------------------------------
+//Modelo que extrae todos los productos de todas las categorias ordenados por el id
+
+public function Extract_All_Data_Object_(){
+
+    $response = array("Success"=>false , "Message"=>"" , "Productos"=>array());
+    $Productos = array();
+    try{
+        @$cadena = "SELECT p.ID as 'ID', p.Nombre as 'Nombre', c.Nombre as 'Categoria' FROM Productos p inner join Categoria c on p.CategoriaID = c.ID ORDER BY p.ID";
+
+        $Productos = R::getAll($cadena);
+        if(!empty($Productos)){
+            $response['Success']=true;
+            $response['Message']=HttpStatusCode::OK;
+            $response['Productos'] = $Productos;
+        }else{
+            $response['Success']=true;
+            $response['Message']=HttpStatusCode::NOT_FOUND;
+        }
+    }catch(Exception $e){
+        $response['Message'] = "Excepcion encontrada: ".$e->getMessage();
+        $response['StatusCode'] = HttpStatusCode::INTERNAL_SERVER_ERROR;
+        error_log("Excepcion encontrada en el metodo Extract_All_Data_Object_(): ".$e);
+    }
+    return $response;
+}
+
+        
+  
+
+   //------------------------------------------------------------------------------------------------------------    
+   //modelo que obtiene la cantidad de registros afectados por la consulta
 
         public function CountData($dato) {
             $con = new Conexion();

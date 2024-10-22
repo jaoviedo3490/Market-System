@@ -24,10 +24,10 @@ class Redis{
                 'port'   => self::$port,
                 'options' => [
                     'retry_strategy' => function ($times) {
-                        if ($times > 3) {
+                        if ($times > 1) {
                             return false;
                         }
-                        return 1000 * pow(2, $times); 
+                        return 100 * pow(2, $times); 
                     },
                 ],
             ]);

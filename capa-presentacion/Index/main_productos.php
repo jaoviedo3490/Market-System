@@ -62,9 +62,10 @@ try{
     $url = "http://localhost/Market-System/capa-negocios/Ajax-Products/Extract-Products.php";
     $data =array("trigger"=>"trigger");
     $httpPost = new internalPetitionPost($url,$data);
-  
-    switch ($array_Productos['Message']) {
-        case HttpStatusCode::NOT_FOUND;
+    $array_Productos = $httpPost->sendPost();
+    print_r($array_Productos);
+    switch ($array_Productos['StatusCode']) {
+        case HttpStatusCode::NOT_FOUND:
             $product_not_found = '<br><h3 id="header-" class="display-3">Sin productos registrados</h3>';
             $consol_data = array("StatusCode"=>$array_Productos['Message'],"Message"=>"Productos no encontrados");
             echo "<script>console.log(".json_encode($consol_data).")</script>";
@@ -236,7 +237,7 @@ $("#Edit-Product").on("click",function(){
                     foreach ($dato as $dat) {
                         echo "<td class='col-sm-2' id='tabla'>" . $dat . "</td>";
                     }
-                    echo "<td class='col-sm-2' data-value='" . @$array_Productos['Productos'][$contador]['ID'] . "'><a style='margin-right:5px;'><img style='width:20%;heigth:20%;' id='Edit-Product' onclick='edit_product(".$array_Productos['Productos'][$contador]['ID'].")' src='../../resources/editar.png'/></a><img style='width:20%;heigth:20%;' id='delete-prod' onclick='delete_prod(".$array_Productos['Productos'][$contador]['ID'].")' src='../../resources/delete.png'/></td></tr>"; //delete_prod(".$array_Productos['Productos'][$contador]['ID'].")
+                    echo "<td class='col-sm-2' data-value='" . @$array_Productos['Productos'][$contador]['ID'] . "'><a style='margin-right:5px;'><img style='width:20%;heigth:20%;' id='Edit-Product' onclick='Extract_product_info(".$array_Productos['Productos'][$contador]['ID'].")' src='../../resources/editar.png'/></a><img style='width:20%;heigth:20%;' id='delete-prod' onclick='delete_prod(".$array_Productos['Productos'][$contador]['ID'].")' src='../../resources/delete.png'/></td></tr>"; //delete_prod(".$array_Productos['Productos'][$contador]['ID'].")
                     $contador++;
                 }
                 echo "</table>";

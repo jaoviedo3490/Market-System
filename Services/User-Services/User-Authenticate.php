@@ -35,7 +35,7 @@ class Authenticate{
             $user = $this->userModel->Extract_User_SQL($usuario);
             if ($user['Message'] == HttpStatusCode::OK) {
     
-                if($user['Usuario']['Estado']!="Activx"){
+                if($user['Usuario']['Estado']!="Activa"){
                     $response['Message'] = "Usuario inactivo";
 
                 }else if ($user['Usuario']['Contraseña'] == $contraseña) {
@@ -72,6 +72,7 @@ class Authenticate{
                          $redis_info = array("user_info"=>array("User-ID"=>$userID,"Nombre"=>$user['Usuario']['Nombre'],
                             "Contrasena"=>$user['Usuario']['Contraseña'],
                                 "Privilegios"=>$user['Usuario']['Privilegios']));
+
                         if($result['Success']){
                             $redis::CreateRedisCustomer("User-Info",json_encode($redis_info));
                             if(!setcookie("auth_token", $token, time() + 14000, '/', '', false, true)){

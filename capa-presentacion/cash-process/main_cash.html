@@ -1,26 +1,32 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta http-equiv="X-UA-Compatible" content="IE=EDGE"> 
-        <link rel="stylesheet" href="../../bootstrap.css">
-        <script src="../../sweetalert/sweetalert.min.js"></script>
-        <script src="../../jquery/jquery.js"></script>
-        <script src="cash.js"></script>
-    </head>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=EDGE">
+    <link rel="stylesheet" href="../../bootstrap.css">
+    <script src="../../sweetalert/sweetalert.min.js"></script>
+    <script src="../../jquery/jquery.js"></script>
+    <script src="cash.js"></script>
+    <script type='module' src="../Script/main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+</head>
+
 <body>
     <header class="bg-white">
         <div class="container-fluid m-auto">
             <nav class="nav">
-                <div class="row justify-content-end"  style="margin-left:5%;">
+                <div class="row justify-content-end" style="margin-left:5%;">
                     <div class="col">
-                        <epic><a  class="display-5" style="text-decoration:none;font-family:
+                        <epic><a class="display-5" style="text-decoration:none;font-family:
                             Lucida Sans Unicode;color:#4580C8;">Facturacion de Productos</a></epic>
                     </div>
-                </div>           
+                </div>
                 <div class="row" style="margin-left:85%;">
-                    <a href='../Index/main.php' id="redirect-page" style="text-decoration:none;font-family:
+                    <a href="#" id="redirect-page" style="text-decoration:none;font-family:
                             Lucida Sans Unicode;color:#4580C8;">Menu Principal</a>
                 </div>
             </nav>
@@ -30,10 +36,21 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col">
-                    Nueva Factura
-                    <input class='form-control' type='search' id='product-name'
-                        placeholder='Ingrese codigo de producto o codigo de barras'>
-                    <br><br>
+                Nueva Factura
+                <input class='form-control' type='search' list='ajax-items' id='product-name'
+                    placeholder='Ingrese codigo de producto o codigo de barras'>
+
+                <div class="container-fluid">
+                    <div class="container">
+                        <div class="row">
+                            <div class="col">
+                                <div class="dropdown-menu" style='padding-right:20%;margin-left: -2%;' id="ajax-items">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <br><br>
                 <button id='add-product' class='btn btn-info'>Agregar Producto</button>
             </div>
             <div class="col">Producto:
@@ -43,9 +60,11 @@
                 <h6 id="total">0$</h6>
                 <br>
                 <br>
-                <button class='btn btn-success' id='cash-complete' style='width:100%'>Finalizar Compra</button>
+                <button class='btn btn-success' id='cash-complete' onClick="GeneratorInvoices()"
+                    style='width:100%'>Finalizar Compra</button>
             </div>
         </div>
     </div>
 </body>
+
 </html>

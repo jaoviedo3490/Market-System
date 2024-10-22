@@ -2,11 +2,11 @@
 
 class Conexion
 {
-    private $servidor = "127.0.0.1";
-    private $base = "market";
-    private $usuario = "root";
-    private $password = ""; // Cambia esto si es necesario
-    private $bd = null;
+    protected $servidor = "127.0.0.1";
+    protected $base = "market";
+    protected $usuario = "root";
+    protected $password = ""; // Cambia esto si es necesario
+    protected $bd = null;
 
     public function getBD()
     {
@@ -22,6 +22,9 @@ class Conexion
             error_log("Error de Conexión a la base de datos: " . $ex->getMessage());
             throw new Exception("Error de conexión a la base de datos.");
         }
+    }
+    public function getConnection(){
+        return $this->bd;
     }
 }
 

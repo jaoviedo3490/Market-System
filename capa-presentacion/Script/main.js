@@ -121,7 +121,7 @@ $(document).ready(function () {
                 GenericAjax(data, responseExtract_Products);
             } catch (error) {
                 Swal.fire({
-                    title: 'Error',
+                    title: 'Excepcion encontrada',
                     text: `Error: ${error}`,
                     icon: 'Error',
                     confirmButtonText: 'Aceptar'
@@ -136,7 +136,7 @@ $(document).ready(function () {
 
                         let search = $("#busqueda").val();
                         if (search == '') {
-                            alert("Aqui 1")
+                            //alert("Aqui 1")
                             searchProduct(search, true);
 
                         } else {
@@ -149,7 +149,7 @@ $(document).ready(function () {
                         let search = $("#busqueda").val();
 
                         if (search == '') {
-                            alert("aqui 2")
+                            //("aqui 2")
                             searchProduct(search, true);
 
                         } else {
@@ -222,12 +222,16 @@ $(document).ready(function () {
         });
     });
     $("#caja").click(function () {
-        location.href = '../cash-process/main_cash.html';
+        location.href = '../../../cash-process/main_cash.html';
     })
 
 });
 
-export const searchProduct = (search, clear = false) => {
+window.MyApp = Window.MyApp || {}
+
+
+
+export const searchProduct = (search, clear = false, origin = 1) => {
     debugger;
     let data = {
         url: '../../capa-negocios/Ajax-Products/Extract-product-info.php',
@@ -235,7 +239,8 @@ export const searchProduct = (search, clear = false) => {
         data: { search },
         type: "json",
         Content: "application/x-www-form-urlencoded; charset=UTF-8",
-        isClear: clear
+        isClear: clear,
+        origin: origin
     }
     GenericAjax(data, responseSearch);
 }
@@ -244,98 +249,122 @@ export const responseSearch = (response) => {
     debugger;
     console.log(response);
     switch (response.Producto.length) {
-        case 0: debugger; break;
+        case 0:
+            debugger; break;
         default:
-            try {
-                debugger;
-
-                if (response.responseText.isClear == null || response.responseText.isClear == undefined) {
-                    console.log(response.Producto[0].ID)
+            let json = JSON.stringify(response);
+            let html;
+            if (response.origin !== '' && response.origin !== 1) {
+                try {
                     for (let i = 0; i < response.Producto.length; i++) {
+                        const Producto = response.Producto[i];
                         debugger;
-                        $("#tabla").html(`<td class='col-sm-2'>${(response.Producto[0].ID)}</td>
-                             <td class='col-sm-2'>${(response.Producto[0].Nombre)} </td>
-                                <td class='col-sm-2'>${(response.Producto[0].Categoria)}</td>
-                                <td><a style='margin-right:5%;' href='#' id='Edit-Product'><img style='width:20%;heigth:20%;' src='../../resources/editar.png'/></a>
-                                <a style='margin-right:5%;' href='#' id='Delete'><img style='width:20%;heigth:20%;' onclick='delete_prod(${(response.Producto[0].ID)})' src='../../resources/delete.png'/></a>
-                                </td>`);
-
+                        html += `<a href='#' class='dropdown-item' style='padding-right:20%' onClick='on_click_cash(${JSON.stringify(Producto)})' 
+                            id='${Producto.Nombre}_${Producto.ID}'>${Producto.Nombre}</a>`;
                     }
-                } else if (response.responseText.isClear != null && response.responseText.isClear != undefined) {
-                    if (!response.responseText.isClear) {
-                        console.log(response.Producto[0].ID)
-                        for (let i = 0; i < response.Producto.length; i++) {
-                            debugger;
-                            $("#tabla").html(`<td class='col-sm-2 table-dark'>${(response.Producto[0].ID)}</td>
-                             <td class='col-sm-2 table-dark'>${(response.Producto[0].Nombre)} </td>
-                                <td class='col-sm-2 table-dark'>${(response.Producto[0].Categoria)}</td>
-                                <td><a style='margin-right:5%;' href='#' id='Edit-Product'><img style='width:20%;heigth:20%;' src='../../resources/editar.png'/></a>
-                                <a style='margin-right:5%;' href='#' id='Delete'><img style='width:20%;heigth:20%;' onclick='delete_prod(${(response.Producto[0].ID)})' src='../../resources/delete.png'/></a>
-                                </td>`);
+                    //alert(response.respuesta);
+                    let action = (response.respuesta !== ' ' && response.respuesta !== '') ? $("#ajax-items").html(html).show()
+                        : $("#ajax-items").html(html).hide();
 
-                        }
-                    } else {
+                } catch (error) {
+                    Swal.fire({
+                        title: 'Error',
+                        text: `Error ${error}`,
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
+                }
+
+            } else {
+                try {
+                    debugger;
+
+                    if (response.responseText.isClear == null || response.responseText.isClear == undefined) {
                         console.log(response.Producto[0].ID)
                         for (let i = 0; i < response.Producto.length; i++) {
                             debugger;
                             $("#tabla").html(`<td class='col-sm-2'>${(response.Producto[0].ID)}</td>
-                             <td class='col-sm-2'>${(response.Producto[0].Nombre)} </td>
-                                <td class='col-sm-2'>${(response.Producto[0].Categoria)}</td>
-                                <td><a style='margin-right:5%;' href='#' id='Edit-Product'><img style='width:20%;heigth:20%;' src='../../resources/editar.png'/></a>
-                                <a style='margin-right:5%;' href='#' id='Delete'><img style='width:20%;heigth:20%;' onclick='delete_prod(${(response.Producto[0].ID)})' src='../../resources/delete.png'/></a>
-                                </td>`);
+                                 <td class='col-sm-2'>${(response.Producto[0].Nombre)} </td>
+                                    <td class='col-sm-2'>${(response.Producto[0].Categoria)}</td>
+                                    <td><a style='margin-right:5%;' href='#' id='Edit-Product' onClick = 'Extract_product_info(${(response.Producto[0].ID)})' ><img style='width:20%;heigth:20%;' src='../../resources/editar.png'/></a>
+                                    <a style='margin-right:5%;' href='#' id='Delete'><img style='width:20%;heigth:20%;' onclick='delete_prod(${(response.Producto[0].ID)})' src='../../resources/delete.png'/></a>
+                                    </td>`);
 
                         }
+                    } else if (response.responseText.isClear != null && response.responseText.isClear != undefined) {
+                        if (!response.responseText.isClear) {
+                            console.log(response.Producto[0].ID)
+                            for (let i = 0; i < response.Producto.length; i++) {
+                                debugger;
+                                $("#tabla").html(`<td class='col-sm-2 table-dark'>${(response.Producto[0].ID)}</td>
+                                 <td class='col-sm-2 table-dark'>${(response.Producto[0].Nombre)} </td>
+                                    <td class='col-sm-2 table-dark'>${(response.Producto[0].Categoria)}</td>
+                                    <td><a style='margin-right:5%;' href='#' id='Edit-Product' onClick = 'Extract_product_info(${(response.Producto[0].ID)})' ><img style='width:20%;heigth:20%;' src='../../resources/editar.png'/></a>
+                                    <a style='margin-right:5%;' href='#' id='Delete'><img style='width:20%;heigth:20%;' onclick='delete_prod(${(response.Producto[0].ID)})' src='../../resources/delete.png'/></a>
+                                    </td>`);
+
+                            }
+                        } else {
+                            console.log(response.Producto[0].ID)
+                            for (let i = 0; i < response.Producto.length; i++) {
+                                debugger;
+                                $("#tabla").html(`<td class='col-sm-2'>${(response.Producto[0].ID)}</td>
+                                 <td class='col-sm-2'>${(response.Producto[0].Nombre)} </td>
+                                    <td class='col-sm-2'>${(response.Producto[0].Categoria)}</td>
+                                    <td><a style='margin-right:5%;' href='#' id='Edit-Product' onClick = 'Extract_product_info(${(response.Producto[0].ID)})'><img style='width:20%;heigth:20%;' src='../../resources/editar.png'/></a>
+                                    <a style='margin-right:5%;' href='#' id='Delete'><img style='width:20%;heigth:20%;' onclick='delete_prod(${(response.Producto[0].ID)})' src='../../resources/delete.png'/></a>
+                                    </td>`);
+
+                            }
+                        }
                     }
+                } catch (error) {
+                    debugger;
+                    console.log(`${error} |  ${response}`)
+                    const claves = Object.keys(response);
+                    for (let i of claves) {
+                        console.log(response[claves]);
+                    }
+                    Swal.fire({
+                        title: 'Error',
+                        text: `Error: ${response.resposeText}`,
+                        icon: 'error',
+                        confirmButtonText: 'Aceptar'
+                    });
                 }
-            } catch (error) {
-                debugger;
-                console.log(`${error} |  ${response}`)
-                const claves = Object.keys(response);
-                for (let i of claves) {
-                    console.log(response[claves]);
-                }
-                Swal.fire({
-                    title: 'Error',
-                    text: `Error: ${response.resposeText}`,
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
             }
+
             break;
     }
 }
 
 
 export const responseExtract_Products = (response) => {
-    console.log(response)
-    debugger;
+    //console.log("nose weon "+JSON.stringify(response))
+
     try {
         switch (response.StatusCode) {
             case 200:
                 debugger;
                 let arreglo = Object.keys(response);
-                //alert(arreglo);
+                //alert(JSON.stringify(arreglo));
+                //alert(response.Productos[0]);
 
-                location = 'http://localhost/Market-System/capa-presentacion/index/main_productos.php';
-                for (let i = 0; i < arreglo.length; i++) {
 
-                    $("#tabla").html(`<td>${arreglo[0]}</td>`
-                        + `<td>${arreglo[1]}</td>`
-                        + `<td>${arreglo[1]}</td>`
-                        + "<td><style='margin-right:5%;' href='#' id='Edit-Product'><img src='../../resources/editar.png'/></a>"
+                arreglo.forEach((elemento, i) => {
+                    //alert(response.Productos[i]);
+                    $("#tabla").html(`<td>${elemento}</td>`
+                        + `<td>${elemento}</td>`
+                        + `<td>${elemento}</td>`
+                        + `<td><style='margin-right:5%;' href='#' id='Edit-Product' onClick = 'Extract_product_info(${(response.Productos[i])})'><img src='../../resources/editar.png'/></a>`
                         + "</td><td><img src='../../resources/delete.png' style='margin-left:5%;' id='delete-prod'/>"
                         + "</td>");
-                }
+                })
+                location = 'http://localhost/Market-System/capa-presentacion/index/main_productos.php';
                 break;
             case 400:
-                Swal.fire({
-                    title: 'Importante',
-                    text: response.Message,
-                    icon: 'error',
-                    confirmButtonText: 'Aceptar'
-                });
-                break;
+            case 404: location = 'http://localhost/Market-System/capa-presentacion/index/main_productos.php'; break
+
             case 500:
                 Swal.fire({
                     title: 'Importante',
@@ -354,9 +383,10 @@ export const responseExtract_Products = (response) => {
                 break;
         }
     } catch (error) {
-
+        debugger;
+        alert(response + " | " + error);
         Swal.fire({
-            title: 'Excepcion encontrada',
+            title: 'Excepcion encontrada 1',
             text: `Codigo de Error: ${error}`,
             icon: 'error',
             confirmButtonText: 'Aceptar'
@@ -368,7 +398,7 @@ export const responseExtract_Products = (response) => {
 
 export const loadProducts = (url) => {
     try {
-        debugger;
+        //debugger;
         let trigger = 'active';
         let data = {
             url: url,
@@ -401,9 +431,9 @@ export const responseLoad_Productos = (response) => {
             "<tbody>";
 
         console.log(response);
-     
+
         for (let clave in response.Productos) {
-            debugger;
+            //debugger;
             jquery += "<tr id='tabla'>";
             jquery += `<td class='col-sm-2'>${response.Productos[clave].ID}</td>`;
             jquery += `<td class='col-sm-2'>${response.Productos[clave].Nombre}</td>`;
@@ -538,7 +568,7 @@ export const loadCategories = (active) => {
 export const sesion2 = (Object) => {
     //alert(Object.pageRedirect);
     if (Object.pageRedirect != undefined || Object.pageRedirect != null) {
-        debugger;
+        // debugger;
         let dato = {
             url: "http://localhost/Market-System/capa-negocios/Ajax-User/Init-sesion.php",
             method: "POST",
@@ -549,7 +579,7 @@ export const sesion2 = (Object) => {
         }
         GenericAjax(dato, responseServer);
     } else {
-        debugger;
+        //debugger;
         let dato = {
             url: "http://localhost/Market-System/capa-negocios/Ajax-User/Init-sesion.php",
             method: "POST",
@@ -629,7 +659,7 @@ export const StatusCodeClass = (response) => {
 
 export const responseServer = (response) => {
     //console.log(`deberia ser true: ${response.responseText.pageRedirect}`);
-    debugger;
+    //debugger;
     switch (response.StatusCode) {
         case 200:
             let data = {
@@ -699,20 +729,24 @@ export const GenericAjax = (data, successCallBack = null) => {
         url: data.url,
         method: data.method,
         data: data.data || null,
-        contentType: data.Content || "application/json; charset=utf-8",
+        contentType: data.Content || "application/x-www-form-urlencoded; UTF-8",
         dataType: data.type || 'json',
         success: function (response) {
 
             if (typeof successCallBack === "function") {
-
+                debugger;
+                console.log("Desde genericAjax:" + data);
                 if (data.pageRedirect != undefined && data.pageRedirect != null) {
-                    //(response)
                     response.responseText = data;
                     successCallBack(response);
                 } else if (data.isClear != undefined && data.isClear != null) {
                     response.responseText = data;
                     successCallBack(response);
 
+                } else if (data.dataPage != undefined && data.dataPage != null) {
+                    debugger;
+                    response.responseText = data;
+                    successCallBack(response);
                 } else {
                     successCallBack(response);
                 }
@@ -842,7 +876,7 @@ export const closed_session = () => {
             method: "POST",
             data: { 'delete': 2 },
             type: "json",
-            content: "application/x-www-form-urlencoded; charset=UTF-8",
+            Content: "application/x-www-form-urlencoded; charset=UTF-8",
         }
         GenericAjax(data, responseClosed_session);
     } catch (error) {
@@ -855,9 +889,23 @@ export const closed_session = () => {
     }
 }
 
-export const edit_product = (id) => {
-    const edit = new Edit_Product();
-    edit.setCustomContent("Editar Producto");
+export const edit_product = (response) => {
+    let object = {}
+    object = response[0];
+    //debugger;
+    try {
+        const edit = new Edit_Product(object);
+        edit.openModal(object);
+        //edit.closeModal();
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+
 }
 
 
@@ -869,7 +917,7 @@ export const to_User_Route = () => {
             method: "POST",
             data: "",
             type: "json",
-            content: "application/x-www-form-urlencoded; charset=UTF-8",
+            Content: "application/x-www-form-urlencoded; charset=UTF-8",
         }
         GenericAjax(data, StatusCodeClass);
     } catch (error) {
@@ -881,6 +929,765 @@ export const to_User_Route = () => {
         });
     }
 }
+export const Extract_product_info = (id, page = 1) => {
+    debugger;
+    try {
+        let data = {
+            url: "http://localhost/Market-System/capa-negocios/Ajax-Products/Extract-all-product-info.php",
+            method: "POST",
+            data: { Producto: id },
+            dataType: "json",
+            Content: "application/x-www-form-urlencoded; charset=UTF-8",
+            dataPage: page
+        }
+        console.log(data);
+        debugger;
+        GenericAjax(data, Extract_Response);
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+
+export const Extract_Response = (response) => {
+    debugger;
+
+    try {
+        console.log(response);
+        switch (response.StatusCode) {
+            case 200:
+                //  debugger;
+                console.log(response.Producto);
+                switch (response.responseText.dataPage) {
+                    case 1: edit_product(response.Producto); break;
+                    default: Print_Unit_Product(response.Producto); break;
+                }
+
+                break;
+            case 400:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `Respuesta del servidor no valida: ${response.StatusCode}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            case 404:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `No se encontraron productos: ${response.StatusCode}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            case 500:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `Problema interno del Servidor: ${response.StatusCode}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            default:
+                Swal.fire({
+                    title: 'Error',
+                    text: `Error al clasificar el codigo de estado: ${response.StatusCode}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+        }
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+
+
+export const Extract_Suspended_Accounts = () => {
+    debugger;
+    try {
+        let data = {
+            url: "http://localhost/Market-System/capa-negocios/Ajax-Products/ajax_actions/user_actions/Extract-Accounts.php",
+            method: "POST",
+            data: { Estado: 'Suspendida' },
+            dataType: "json",
+            Content: "application/x-www-form-urlencoded; charset=UTF-8",
+        }
+
+        GenericAjax(data, Response_Suspended_Accounts);
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+
+export const Response_Suspended_Accounts = (response) => {
+    debugger;
+    try {
+        switch (response.StatusCode) {
+            case 200:
+                console.log(response.Cuentas.length);
+                let html = "";
+                if (response.Cuentas.length < 1) {
+                    html = '<br><h3 class="display-3" style="text-align:center">Sin cuentas suspendidas</h3>';
+                    $("#table---").html(html);
+                } else {
+                    html += `<table id='tb' class='table table-striped table-bordered'>
+                                <tr>
+                                    <td>ID</td>
+                                    <td>Nombre</td>
+                                    <td>Privilegios</td>
+                                    <td>Estado</td>
+                                    <td>Acciónes</td>
+                                </tr>`;
+
+                    for (let i = 0; i < response.Cuentas.length; i++) {
+                        html += `<tr>`;
+
+                        // Rellenar las celdas con la información de cada cuenta
+                        for (const key of Object.keys(response.Cuentas[i])) {
+                            html += `<td ud='id_'>${response.Cuentas[i][key]}</td>`;
+                        }
+
+                        const accountId = response.Cuentas[i].ID; // Usar el ID correcto para cada cuenta
+                        html += `<td>
+                                    <div class="form-group">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" onClick="Activation_Account(${accountId})" role="switch" id="flexSwitchCheckSuspended_${accountId}">
+                                            <label class="form-check-label" for="flexSwitchCheckSuspended_${accountId}">Reactivar</label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="id_user" hidden>${accountId}</td>
+                            </tr>`;
+                    }
+                    html += "</table>";
+                    $("#table---").html(html);
+                }
+                break;
+            case 400:
+                alert('Nonas mi rey respuesta incorrecta');
+                break;
+            case 404:
+                alert('Nonas mi rey No se encontraron cuentas suspendidas');
+                break;
+            case 500:
+                alert('Nonas mi rey Error interno del servidor');
+                break;
+            default:
+                Swal.fire({
+                    title: 'Importante - Error',
+                    text: `: ${error}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+        }
+    } catch (error) {
+
+    }
+};
+
+
+
+
+
+export const Activation_Account = (id) => {
+    const Switch = document.getElementById(`flexSwitchCheckSuspended_${id}`);
+    //alert(Switch);
+    Swal.fire({
+        title: 'Importante',
+        text: `¿Desea Activar la cuenta selecconada? , puede volver a suspender la cuenta en la pestaña cuentas Activas`,
+        icon: 'info',
+        confirmButtonText: 'Si, Activar',
+        showCancelButton: "Cancelar"
+    }).then((result) => {
+        Switch.disabled = false;
+        if (result.isConfirmed) {
+            debugger;
+
+            try {
+                let data = {
+                    url: "http://localhost/Market-System/capa-negocios/Ajax-User/Active-user.php",
+                    method: "POST",
+                    data: { Active: id },
+                    dataType: 'json',
+                    Content: "application/x-www-form-urlencoded; charset=UTF-8"
+                }
+                GenericAjax(data, Response_Activation_Account);
+            } catch (error) {
+                Swal.fire({
+                    title: 'Excepcion encontrada',
+                    text: `Codigo de Error: ${error}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        } else {
+            Switch.checked = false;
+        }
+    })
+}
+
+export const Response_Activation_Account = (response) => {
+    debugger;
+    console.log(response);
+    try {
+        switch (response.StatusCode) {
+            case 200:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `Cuenta Activada , revisa la cuenta en la pestaña Cuentas suspendidas`,
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                }).then(function () {
+                    Extract_Suspended_Accounts();
+                    window.location.reload(true);
+
+                    Extract_Active_Accounts();
+                    window.location.reload(true);
+
+                });
+                break;
+            case 400:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `El servidor respondio erroneamente`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            case 404:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `Usuario no encontrado!`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            case 500:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `Error interno del servidor`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            default:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `El servidor respondio erroneamente`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+        }
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+export const Extract_Active_Accounts = () => {
+    debugger;
+    try {
+        let data = {
+            url: "http://localhost/Market-System/capa-negocios/Ajax-Products/ajax_actions/user_actions/Extract-Accounts.php",
+            method: "POST",
+            data: { Estado: 'Activa' },
+            dataType: "json",
+            Content: "application/x-www-form-urlencoded; charset=UTF-8",
+        }
+
+        GenericAjax(data, Response_Active_Accounts);
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+export const Response_Active_Accounts = (response) => {
+    debugger;
+    try {
+        switch (response.StatusCode) {
+            case 200:
+                console.log(response.Cuentas.length);
+                let html = "";
+                if (response.Cuentas.length < 1) {
+                    html = '<br><h3 class="display-3" style="text-align:center">Sin cuentas registradas</h3>';
+                    $("#table---").html(html);
+                } else {
+                    html += `<table id='tb' class='table table-striped table-bordered'>
+                                <tr>
+                                    <td>ID</td>
+                                    <td>Nombre</td>
+                                    <td>Privilegios</td>
+                                    <td>Estado</td>
+                                    <td>Acciónes</td>
+                                </tr>`;
+
+                    for (let i = 0; i < response.Cuentas.length; i++) {
+                        html += `<tr>`;
+
+                        // Rellenar las celdas con la información de cada cuenta
+                        for (const key of Object.keys(response.Cuentas[i])) {
+                            html += `<td ud='id_'>${response.Cuentas[i][key]}</td>`;
+                        }
+
+                        const accountId = response.Cuentas[i].ID; // Usar el ID correcto para cada cuenta
+                        html += `<td>
+                                    <div class="form-group">
+                                        <div class="form-check form-switch">
+                                            <input class="form-check-input" type="checkbox" onClick="Suspend_Account(${accountId})" role="switch" id="flexSwitchCheckChecked_${accountId}" checked>
+                                            <label class="form-check-label" for="flexSwitchCheckChecked_${accountId}">Suspender</label>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td id="id_user" hidden>${accountId}</td>
+                            </tr>`;
+                    }
+                    html += "</table>";
+                    $("#table---").html(html);
+                }
+                break;
+            case 400:
+                alert('Nonas mi rey respuesta incorrecta');
+                break;
+            case 404:
+                alert('Nonas mi rey No se encontraron cuentas');
+                break;
+            case 500:
+                alert('Nonas mi rey Error interno del servidor');
+                break;
+            default:
+                Swal.fire({
+                    title: 'Importante - Error',
+                    text: `: ${error}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+        }
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepción encontrada',
+            text: `Código de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+};
+
+let PrecioTotal = 0;
+let mercado = new Array();
+export const on_click_cash = (param) => {
+    $("#ajax-items").hide();
+    $("#product-name").val("");
+    $("#product-name").focus();
+    try {
+        debugger;
+        let json = JSON.parse(JSON.stringify(param));
+        let index = mercado.findIndex(fila => fila[0] === json.Nombre); // Asegúrate de que compares el nombre correctamente
+        
+        console.log(mercado);
+        // Aumentar cantidad o agregar nuevo producto
+        index !== -1
+            ? mercado[index][mercado[index].length - 1] += 1 // Aumenta la cantidad del producto
+            : mercado.push([json.Nombre, json.Precio, 1]); // Agrega nuevo producto
+            console.log(mercado);
+
+
+        //alert(index);
+        debugger;
+
+        // Generar el HTML solo una vez
+        let html_product = '';
+        for (let producto of mercado) {
+            debugger;
+            let PrecioProd = producto[1] * producto[2];
+            html_product += `
+                <ul id='${producto[0].replaceAll(" ", "_")}'>
+                    <table class='table table-hover'>
+                        <tr>
+                            <td class='col-sm-2'>${producto[0]}</td>
+                            <td class='col-sm-2'>${producto[1]}</td>
+                            <td class='col-sm-2'>${producto[2]}</td>
+                            <td class='col-sm-2'>
+                                <img style='width:20%; height:20%; margin-left:15%; cursor:pointer' onclick='deleteCashProduct("${producto[0]}")' src="../../resources/delete.png"/>
+                            </td>
+                        </tr>
+                    </table>
+                </ul>`;
+        }
+
+        // Reemplaza el contenido del contenedor
+        $("#list-product").html(html_product); // Reemplaza todo el HTML en lugar de append o replaceWith
+
+        // Actualiza el total
+        PrecioTotal = mercado.reduce((total, producto) => total + (producto[1] * producto[2]), 0);
+        $('#total').html(`${PrecioTotal} $`);
+
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepción encontrada',
+            text: `Código de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+
+
+
+export const Create_Account = () => {
+    try {
+        const create = new Create_Accounts();
+        create.openModal();
+        //edit.closeModal();
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+
+}
+
+
+
+
+export const Suspend_Account = (id) => {
+    const Switch = document.getElementById(`flexSwitchCheckChecked_${id}`);
+    Switch.disabled = true;
+    Swal.fire({
+        title: 'Importante',
+        text: `¿Desea suspender esta cuenta? , el usuario asociado no podra acceder al sistema ,
+            para activar la cuenta debera buscar la cuenta asociada y activarla.`,
+        icon: 'info',
+        confirmButtonText: 'Si, Suspender',
+        showCancelButton: 'Cancelar'
+    }).then((result) => {
+        Switch.disabled = false;
+        if (result.isConfirmed) {
+            debugger;
+            try {
+                let data = {
+                    url: "http://localhost/Market-System/capa-negocios/Ajax-User/Suspend-user.php",
+                    method: "POST",
+                    data: { Suspend: id },
+                    dataType: 'json',
+                    Content: "application/x-www-form-urlencoded; charset=UTF-8"
+                }
+                GenericAjax(data, Response_Activation_Account);
+            } catch (error) {
+                Swal.fire({
+                    title: 'Excepcion encontrada',
+                    text: `Codigo de Error: ${error}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+            }
+        } else {
+            Switch.checked = true;
+        }
+    })
+
+}
+
+export const Response_Suspend_Account = (response) => {
+    debugger;
+
+    console.log(response);
+    try {
+        switch (response.StatusCode) {
+            case 200:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `Cuenta Suspendida , revisa la cuenta en la pestaña Cuentas Suspendidas`,
+                    icon: 'success',
+                    confirmButtonText: 'Aceptar'
+                }).then(function () {
+
+                    Extract_Suspended_Accounts();
+                    window.location = "../User-Folders/Management_accounts/main_accounts";
+                    Extract_Active_Accounts();
+
+                    window.location = "../User-Folders/Management_accounts/main_accounts";
+                })
+
+                break;
+            case 400:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `El servidor respondio erroneamente`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            case 404:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `Usuario no encontrado!`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            case 500:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `Error interno del servidor`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            default:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `El servidor respondio erroneamente`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+        }
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+export const Print_Unit_Product = (response) => {
+    debugger;
+    let producto = {};
+    producto = response;
+    console.log(producto)
+    try {
+
+        $("#nombre-producto").text(producto[0].Nombre);
+        $("#referencia-producto").html(producto[0].Referencia);
+        $("#precio-producto").html(producto[0].Precio);
+        $("#stock-producto").html(producto[0].Stock);
+        $("#vendidas-producto").html(producto[0].Vendidos);
+        $("#categoria-producto").html(producto[0].Categoria);
+
+
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+
+const response_UpdateProduct = (response) => {
+    try {
+        console.log(response);
+        switch (response.StatusCode) {
+            case 200: break;
+            case 400:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `El servidor devolvio una respuesta erronea: ${response.Message}`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            case 403:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `${response.Message} , ${response.Repetidos}`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+            case 404:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `${response.Message}`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                }); break;
+            case 500:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `${response.Message}`,
+                    icon: 'error',
+                    confirmButtonText: 'Aceptar'
+                }); break;
+                break;
+            default:
+                Swal.fire({
+                    title: 'Importante',
+                    text: `El servidor devolvio una respuesta erronea: ${response.Message}`,
+                    icon: 'warning',
+                    confirmButtonText: 'Aceptar'
+                });
+                break;
+        }
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+
+const cashSearchProduct = (param) => {
+    try {
+        searchProduct(param);
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepcion encontrada',
+            text: `Codigo de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+const deleteCashProduct = (nameProduct) => {
+    try {
+        let index = 0;
+        let nCantidad;
+
+        if (Array.isArray(mercado) && Array.isArray(mercado[0])) {
+            index = mercado.findIndex(fila => fila[0] === nameProduct);
+            console.log(index);
+
+            if (index !== -1) {
+                nCantidad = mercado[index][2]; 
+
+           
+                if (nCantidad === 1) {
+                    mercado.splice(index, 1); 
+                } else {
+                    mercado[index][2] -= 1; 
+                }
+            }
+        } else if (Array.isArray(mercado) && !Array.isArray(mercado[0])) {
+         
+            alert("Un arreglo de una dimensión, lo cual no debería suceder.");
+        }
+
+      
+        let html_product = '';
+        for (let producto of mercado) {
+            html_product += `
+                <ul id='${producto[0].replaceAll(" ", "_")}'>
+                    <table class='table table-hover'>
+                        <tr>
+                            <td class='col-sm-2'>${producto[0]}</td>
+                            <td class='col-sm-2'>${producto[1]}</td>
+                            <td class='col-sm-2'>${producto[2]}</td>
+                            <td class='col-sm-2'>
+                                <img style='width:20%; height:20%; margin-left:15%; cursor:pointer' onclick='deleteCashProduct("${producto[0]}")' src="../../resources/delete.png"/>
+                            </td>
+                        </tr>
+                    </table>
+                </ul>`;
+        }
+
+       
+        $("#list-product").html(html_product); 
+
+    
+        const PrecioTotal = mercado.reduce((total, producto) => total + (Number(producto[1]) * Number(producto[2])), 0);
+        $('#total').html(`${PrecioTotal} $`);
+
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepción encontrada',
+            text: `Código de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+
+const GeneratorInvoices = () => {
+    try {
+        if (mercado.length > 0) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(18);
+            doc.text("Factura Comercial", 105, 20, { align: 'center' });
+
+            doc.setFontSize(12);
+            doc.text("Número de Factura: 12345", 20, 30);
+            doc.text("Fecha: 2024-10-20", 150, 30);
+
+            doc.setLineWidth(0.5);
+            doc.line(20, 35, 190, 35);
+
+            // Tabla
+            doc.autoTable({
+                startY: 40,
+                head: [['Producto', 'Cantidad', 'Precio Unitario', 'Total']],
+                body: mercado.map(productos => [
+                    productos[0], 
+                    productos[2], 
+                    productos[1], 
+                    (productos[1] * productos[2]).toFixed(2), // Total
+                ]),
+                theme: 'grid'
+            });
+
+            // Precio Total
+            let PrecioTotal = mercado.reduce((total, productos) => total + (Number(productos[2]) * Number(productos[1])), 0);
+            doc.setFontSize(14);
+            doc.text(`Total a Pagar: $${PrecioTotal.toFixed(2)}`, 150, doc.lastAutoTable.finalY + 10);
+
+            // Guardar PDF
+            doc.save("Factura.pdf");
+        } else {
+            Swal.fire({
+                title: 'Importante',
+                text: `Debe agregar productos para poder generar la factura`,
+                icon: 'info',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    } catch (error) {
+        Swal.fire({
+            title: 'Excepción encontrada',
+            text: `Código de Error: ${error}`,
+            icon: 'error',
+            confirmButtonText: 'Aceptar'
+        });
+    }
+}
+
+
+
+
 window.delete_prod = delete_prod;
 window.loadProducts = loadProducts;
 window.loadCategories = loadCategories;
@@ -897,4 +1704,18 @@ window.searchProduct = searchProduct;
 window.responseSearch = responseSearch;
 window.edit_product = edit_product;
 window.to_User_Route = to_User_Route;
-
+window.Extract_product_info = Extract_product_info;
+window.Extract_Suspended_Accounts = Extract_Suspended_Accounts;
+window.Response_Suspended_Accounts = Response_Suspended_Accounts;
+window.Response_Active_Accounts = Response_Active_Accounts;
+window.Extract_Active_Accounts = Extract_Active_Accounts;
+window.Create_Account = Create_Account;
+window.Activation_Account = Activation_Account;
+window.Response_Activation_Account = Response_Activation_Account;
+window.Suspend_Account = Suspend_Account;
+window.Print_Unit_Product = Print_Unit_Product;
+window.response_UpdateProduct = response_UpdateProduct;
+window.cashSearchProduct = cashSearchProduct;
+window.on_click_cash = on_click_cash;
+window.deleteCashProduct = deleteCashProduct;
+window.GeneratorInvoices = GeneratorInvoices;

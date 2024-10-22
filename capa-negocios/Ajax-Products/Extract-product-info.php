@@ -8,7 +8,7 @@
             $busqueda = $_REQUEST['search'];
             $data_object = new Productos();
             $dato = array();
-            $dato = $data_object->Extract_All_Data_Object($busqueda);
+            $dato = $data_object->Extract_All_Data_Object_Search($busqueda);
             if($dato['Success']){
                 $response['StatusCode'] = HttpStatusCode::OK;
                 $response['Message'] = "";
