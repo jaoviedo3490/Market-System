@@ -19,8 +19,10 @@
 - **Ajax**: Para realizar peticiones HTTP asíncronas al backend.
 - **JavaScript (ES6+)**: Programación del lado del cliente.
 - **JWT (JSON Web Token)**: Implementación de autenticación segura.
+- **jsPDF** : Para generar los archivos PDF de las facturas electronicas.
 
 ### Otras Tecnologías
 - **Patrón de Diseño MVC**: Arquitectura utilizada para separar las responsabilidades de la aplicación.
 - **Diseño de APIs y Servicios**: Implementación de servicios RESTful para la comunicación entre frontend y backend.
 - **POO**: Se utiliza una estructura oriendata a objetos en los modelos y servicios para que sea escalable , mantenible y reutilizable.
+- **ORM RedBeanPHP**: Una libreria de PHP utilizada para generar ORM sencillo y facil de implementar.  
