@@ -250,8 +250,9 @@ CREATE TABLE `usuarios` (
 --
 
 INSERT INTO `usuarios` (`ID`, `Nombre`, `Contraseña`, `Estado`, `Privilegios`) VALUES
-(1, 'Jasson Alexander', '1007180943Jas', 'Activx', 'Administrador'),
+(1, 'admin', 'admin123', 'Activo', 'Administrador'),
 (2, 'Empleado-1', 'pass-word', 'suspendida', 'empleado');
+(3, 'Enpleado-2', 'password' , 'Activo','empleado')
 
 --
 -- Índices para tablas volcadas
