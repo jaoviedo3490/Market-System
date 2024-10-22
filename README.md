@@ -1,6 +1,6 @@
 # Market-System
 
-**Market-System** es una aplicación web diseñada para gestionar inventarios y realizar facturación electrónica de manera eficiente.
+**Market-System** es una aplicación web diseñada para gestionar inventarios y realizar facturación electrónica de manera eficiente. Actualmente se encuentra en etapa de desarrollo
 
 ## Tecnologías Utilizadas
 
