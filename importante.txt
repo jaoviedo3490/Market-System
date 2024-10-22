@@ -19,5 +19,5 @@ NOTA: Tambien se necesita la instalación de Xampp , para poder ejecutar los ser
 
 USUARIOS Y CONTRASEÑAS
 La aplicacion cuenta con 2 roles , administrador y empleado , Actualmente la aplicacion se encuentra en desarrollo por lo que estoy creando todas funciones del rol administrador.
-Usuario : Admin.
-Contraseña: Admin123.
+Usuario : Admin
+Contraseña: Admin123
